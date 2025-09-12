@@ -11,12 +11,17 @@ NGAPASSPORTCID = ""
 OUTPUT_DIR = "output"
 
 
-# html模板
+#html模板
 
 HTML_PRE = '<div class="bbcode_container">'
 HTML_POST = "</div>"
 HTML_STYLE = """
 <style>
+body{
+    background-color: #fff0cd;
+    /* 页面背景色 */
+}
+
 .bbcode_container {
   max-width: 90%;   /* 占屏幕宽度的 90% */
   margin: 0 auto;
@@ -29,5 +34,35 @@ blockquote {
   background: #f2eddf;
   border: 1px solid #e6e1d3;
 }
+.skyblue   { color: skyblue; }
+.royalblue { color: royalblue; }
+.blue      { color: blue; }
+.darkblue  { color: darkblue; }
+
+.orange    { color: orange; }
+.orangered { color: orangered; }
+.crimson   { color: crimson; }
+.red       { color: red; }
+.firebrick { color: firebrick; }
+.darkred   { color: darkred; }
+
+.green     { color: green; }
+.limegreen { color: limegreen; }
+.seagreen  { color: seagreen; }
+.teal      { color: teal; }
+
+.deeppink  { color: deeppink; }
+.tomato    { color: tomato; }
+.coral     { color: coral; }
+
+.purple    { color: purple; }
+.indigo    { color: indigo; }
+
+.burlywood  { color: burlywood; }
+.sandybrown { color: sandybrown; }
+.sienna     { color: sienna; }
+.chocolate  { color: chocolate; }
+
+.silver    { color: silver; }
 </style>
 """
