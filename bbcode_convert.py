@@ -1,6 +1,9 @@
 import re
 
 
+
+
+# 将单个 BBCode 转换为 HTML，先不添加 CSS 样式
 def bbcode_to_html(text: str) -> str:
     # 定义 BBCode 转换规则
     rules = [
@@ -16,29 +19,12 @@ def bbcode_to_html(text: str) -> str:
         (r"\[size=(.*?)\](.*?)\[/size\]", r'<span style="font-size:\1">\2</span>'),
     ]
 
-    # 逐个应用规则
+    # 逐个应用规则，为应对标签嵌套，多次应用规则
+    for pattern, repl in rules:
+        text = re.sub(pattern, repl, text, flags=re.DOTALL | re.IGNORECASE)
+    for pattern, repl in rules:
+        text = re.sub(pattern, repl, text, flags=re.DOTALL | re.IGNORECASE)
     for pattern, repl in rules:
         text = re.sub(pattern, repl, text, flags=re.DOTALL | re.IGNORECASE)
 
-    # 再来一次
-    for pattern, repl in rules:
-        text = re.sub(pattern, repl, text, flags=re.DOTALL | re.IGNORECASE)
-
-    pretext = '<div class="bbcode_container">'
-    posttext = "</div>"
-    style = """
-<style>
-.bbcode_container {
-  max-width: 90%;   /* 占屏幕宽度的 90% */
-  margin: 0 auto;
-}
-.bbcode_container img {
-  max-width: 100%;    /* 图片不超过正文宽度 */
-  height: auto;       /* 保持比例 */
-}
-blockquote {
-  background: #f2eddf;
-  border: 1px solid #e6e1d3;
-}
-</style>"""
-    return pretext + text + posttext + style
+    return text
