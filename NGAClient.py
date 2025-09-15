@@ -45,8 +45,8 @@ class NGAClient:
             raise Exception(f"Error fetching page: {json_data.get('msg', 'Unknown error')}")
 
         #保存到tmp.json
-        with open("tmp.json", "w", encoding="utf-8") as f:
-            json.dump(json_data, f, ensure_ascii=False, indent=4)
+        #with open("tmp.json", "w", encoding="utf-8") as f:
+        #    json.dump(json_data, f, ensure_ascii=False, indent=4)
 
         return json_data
 

@@ -2,3 +2,5 @@
 config.py
 output/
 __pycache__/
+*.xls
+*.xlsx
