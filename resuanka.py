@@ -2,6 +2,7 @@
 
 import NGAClient
 import pandas as pd
+import argparse
 
 
 def html_and_bbcode_cleaner(text):
@@ -22,28 +23,93 @@ def html_and_bbcode_cleaner(text):
     return text.strip()
 
 
+anjia_meta = {
+    "hbrgo": {
+        "tid": 41989465,
+        "start_lou": 33540,
+        "ignore_author_user": [62906407],  # 忽略作者本人的帖子
+        "keyword": None,  # 关键词过滤，不包括关键词的楼层不统计
+        "endtime": "2025-09-16 18:00",  # 结束时间，格式为"YYYY-MM-DD HH-MM-SS"，None为不限制时间
+        "not_anjia_lou_list": [
+            33586,
+            33567,
+            33590,
+            33593,
+            33582,
+            33585,
+            33589,
+            33597,
+            33615,
+            33621,
+            33622,
+            33623,
+            33624,
+            33629,
+            33632,
+            33641,
+            33642,
+            33655,
+            33659,
+            33660,
+            33664,
+            33671,
+            33675,
+            33680,
+            33681,
+            33682,
+            33684,
+            33685,
+            33689,
+            33692,
+        ],
+    },
+    "gmgo": {
+        "tid": 43877379,
+        "start_lou": 7483,
+        "ignore_author_user": [62668270],  # 忽略作者本人的帖子
+        "keyword": None,  # 关键词过滤，不包括关键词的楼层不统计
+        "endtime": None,  # 结束时间，格式为"YYYY-MM-DD HH-MM-SS"，None为不限制时间
+        "not_anjia_lou_list": [
+            7488,
+            7494,
+            7524,
+            7521,
+            7516,
+            7520,
+            7523,
+            7515,
+            7517,
+            7518,
+            7519,
+            7508,
+            7525,
+            7526,
+            7529,
+        ],
+    },
+}
+
+
 def main():
-    tid = 41989465
-    start_lou = 33540
-    ignore_author_user = [62906407]  # 忽略作者本人的帖子
-    keyword = None  # 关键词过滤，不包括关键词的楼层不统计，None为不过滤，鉴于有人安价不带安价这两个字，还是手工筛选吧
-    endtime = (
-        "2025-09-16 18:00"  # 结束时间，格式为"YYYY-MM-DD HH-MM-SS"，None为不限制时间
+
+    parser = argparse.ArgumentParser(description="安价统计脚本，生成安价.xlsx文件")
+    parser.add_argument(
+        "--anke",
+        type=str,
+        choices=anjia_meta.keys(),
+        help="安价帖代号",
+        default="hbrgo",
     )
 
-    not_anjia_lou_list = [
-        33586,
-        33567,
-        33590,
-        33593,
-        33582,
-        33585,
-        33589,
-        33597,
-        33615,
-        33621,
-        33622,
-    ]
+    args = parser.parse_args()
+
+    tid = anjia_meta[args.anke]["tid"]
+    start_lou = anjia_meta[args.anke]["start_lou"]
+    ignore_author_user = anjia_meta[args.anke]["ignore_author_user"]
+    keyword = anjia_meta[args.anke]["keyword"]
+    endtime = anjia_meta[args.anke]["endtime"]
+
+    not_anjia_lou_list = anjia_meta[args.anke]["not_anjia_lou_list"]
 
     client = NGAClient.NGAClient()
 
@@ -66,13 +132,11 @@ def main():
 
     if len(content_list) != content_list[-1]["lou"] - start_lou + 1:
         print("Warning: 楼层数与实际帖子数不符，可能存在吞楼")
-        offset = 0
-        i = start_lou
-        while i <= content_list[-1]["lou"]:
-            if content_list[i - start_lou]["lou"] - offset != i:
-                print(f"缺少楼层 {i}")
-                offset += 1
-            i += 1
+        except_lou_list = [i for i in range(start_lou, content_list[-1]["lou"] + 1)]
+        for content in content_list:
+            if content["lou"] in except_lou_list:
+                except_lou_list.remove(content["lou"])
+        print(f"缺失楼层列表: {list(except_lou_list)}")
 
     anjia_list = []
     ignored_anjia_list = []
@@ -155,7 +219,7 @@ def main():
         for i in range(len(anjia["content"])):
             lou, content = anjia["content"][i]
             content = html_and_bbcode_cleaner(content)
-            maybe_repeat = "是" if len(anjia["content"]) > 1 else "否"
+            maybe_repeat = "是" if len(anjia["content"]) > 1 else ""
             df = pd.concat(
                 [
                     df,
@@ -204,7 +268,7 @@ def main():
                 ignore_index=True,
             )
 
-    with pd.ExcelWriter("安价.xlsx", engine="xlsxwriter") as writer:
+    with pd.ExcelWriter(f"{args.anke}_安价.xlsx", engine="xlsxwriter") as writer:
         df.to_excel(writer, sheet_name="Sheet1", index=False)
         wrap_format = writer.book.add_format({"text_wrap": True})
         # 设置列宽
@@ -222,6 +286,18 @@ def main():
             estimated_lines = content_length // 100 + 1
 
             worksheet.set_row(i + 1, estimated_lines * 25)
+
+            # 如果这一行有可能重复安价，则设置用户名单元格为红色字体并加粗背景黄色
+            if df.at[i, "是否有可能重复安价"] == "是":
+                red_format = writer.book.add_format(
+                    {
+                        "font_color": "red",
+                        "bold": True,
+                        "bg_color": "yellow",
+                        "text_wrap": True,
+                    }
+                )
+                worksheet.write(i + 1, 2, df.at[i, "作者名称"], red_format)
 
         worksheet.set_column("E:E", 100, wrap_format)
 
