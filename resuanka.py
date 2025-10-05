@@ -8,6 +8,8 @@ import argparse
 def html_and_bbcode_cleaner(text):
     import re
 
+    text = text.replace("<br>", "\n").replace("<br/>", "\n").replace("<br />", "\n")
+
     # 移除HTML标签
     text = re.sub(r"<[^>]+>", "", text)
 
@@ -29,7 +31,7 @@ anjia_meta = {
         "start_lou": 33540,
         "ignore_author_user": [62906407],  # 忽略作者本人的帖子
         "keyword": None,  # 关键词过滤，不包括关键词的楼层不统计
-        "endtime": "2025-09-16 18:00",  # 结束时间，格式为"YYYY-MM-DD HH-MM-SS"，None为不限制时间
+        "endtime": "2025-09-16 18:00",  # 结束时间，格式为"YYYY-MM-DD HH:MM"，None为不限制时间
         "not_anjia_lou_list": [
             33586,
             33567,
@@ -69,7 +71,7 @@ anjia_meta = {
         "start_lou": 7483,
         "ignore_author_user": [62668270],  # 忽略作者本人的帖子
         "keyword": None,  # 关键词过滤，不包括关键词的楼层不统计
-        "endtime": None,  # 结束时间，格式为"YYYY-MM-DD HH-MM-SS"，None为不限制时间
+        "endtime": "2025-09-17 21:21",  # 结束时间，格式为"YYYY-MM-DD HH:MM"，None为不限制时间
         "not_anjia_lou_list": [
             7488,
             7494,
@@ -86,7 +88,34 @@ anjia_meta = {
             7525,
             7526,
             7529,
-            7536
+            7536,
+            7537,
+            7558,
+            7559,
+            7563,
+            7565,
+            7567,
+            7569,
+            7548,
+            7549,
+            7527,
+            7562,
+            7564,
+            7571,
+            7573,
+            7575,
+            7577,
+            7560,
+            7550,
+            7535,
+            7551,
+            7552,
+            7547,
+            7568,
+            7570,
+            7566,
+            7574,
+            7576,
         ],
     },
 }
@@ -287,7 +316,7 @@ def main():
             content_length = len(df.at[i, "安价内容"])
             estimated_lines = content_length // 100 + 1
 
-            worksheet.set_row(i + 1, estimated_lines * 25)
+            worksheet.set_row(i + 1, estimated_lines * 50)
 
             # 如果这一行有可能重复安价，则设置用户名单元格为红色字体并加粗背景黄色
             if df.at[i, "是否有可能重复安价"] == "是":

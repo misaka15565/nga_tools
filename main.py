@@ -132,14 +132,19 @@ def img_download(url, save_folder):
             print(f"Image already exists, skipping url: {url}")
             return
         try:
+            img = None
             os.system(f'curl "{url}" -o "{save_path}"')
             # 检查下载的图片是否能读取
             img = Image.open(save_path)
             img.verify()  # 验证图片是否损坏
         except Exception as e:
-            img.close()
+            if img != None:
+                img.close()
             print(f"Failed to download image {url}: {e}")
-            os.remove(save_path)  # 删除损坏的文件
+            #如果存在文件则删除
+            if os.path.exists(save_path):
+                os.remove(save_path)
+            
 
 
 def nga_imgurl_verify(url) -> bool:
